@@ -171,6 +171,8 @@ def _optimize_chunk_with_retry(chunk_data):
             if response.status_code == 200:
                 data = response.json()
                 content = data.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+                # 移除模型可能添加的 Markdown 加粗标记，避免前端直接显示星号
+                content = re.sub(r'\*\*(.*?)\*\*', r'\1', content)
                 if content: return {"status": "success", "content": content}
                 else: return {"status": "error", "message": "API返回空内容"}
             error_msg = f"API错误 {response.status_code}: {_extract_api_error_message(response)}"
@@ -230,6 +232,8 @@ def _summarize_chunk_with_retry(text_chunk):
             if response.status_code == 200:
                 data = response.json()
                 content = data.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+                # 移除模型可能添加的 Markdown 加粗标记
+                content = re.sub(r'\*\*(.*?)\*\*', r'\1', content)
                 if content: return {"status": "success", "content": content}
                 else: return {"status": "error", "message": "API为Map阶段返回空内容"}
             error_msg = f"API错误 {response.status_code}: {_extract_api_error_message(response)}"
@@ -260,6 +264,8 @@ def _perform_summarization(text_to_summarize):
         if response.status_code == 200:
             data = response.json()
             final_summary = data.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+            # 移除模型可能添加的 Markdown 加粗标记
+            final_summary = re.sub(r'\*\*(.*?)\*\*', r'\1', final_summary)
             if final_summary: return {"status": "success", "summary": final_summary}
             else: return {"status": "error", "message": "API为Reduce阶段返回空内容"}
         else:

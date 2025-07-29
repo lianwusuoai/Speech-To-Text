@@ -1,0 +1,10 @@
+services:
+  speech-to-text:
+    image: speech-to-text:latest
+    build: .
+    container_name: speech-to-text
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "10016:5000"
